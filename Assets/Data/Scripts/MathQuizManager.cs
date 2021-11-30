@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public enum MathQuizMode
@@ -26,7 +27,11 @@ public interface IMathQuiz
 /// </summary>
 public class MathQuizManager : MonoBehaviour
 {
-    public UnityEngine.Events.UnityEvent FeedBack;
+    [System.Serializable]
+    public class ResultUnityEvent : UnityEvent<bool> { }
+
+    public UnityEvent GameStartEvent;
+    public ResultUnityEvent GameResultEvent;
     [SerializeField] private Text TermAText;
     [SerializeField] private Text SymbolText;
     [SerializeField] private Text TermBText;
@@ -59,13 +64,14 @@ public class MathQuizManager : MonoBehaviour
         Debug.Log($"{termA}{sym}{termB}={ans}");
         for (int i = 0; i < curQuiz.Options.Length; i++)
             bonusBtns[i].SetValue(curQuiz.Options[i]);
+        GameStartEvent?.Invoke();
     }
 
     private void UserAnswer(int num)
     {
         bool isSuc = curQuiz.Answer == num;
         Debug.Log("isSuc " + isSuc);
-        FeedBack?.Invoke();
+        GameResultEvent?.Invoke(isSuc);
     }
 
     private string GetMathSymbol(MathQuizMode mode)
